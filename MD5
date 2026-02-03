@@ -1,0 +1,10 @@
+741877d865822354ac8dac20d05067b6 *DESCRIPTION
+e3db9ec0a850cfee2c761abfeae883eb *LICENSE
+020ef56c6319efbf1afe118aab1ece82 *NAMESPACE
+2344152621dfaaa934e75d39d329f6e2 *R/data_step.R
+557f075855c5e558f1a74f2d03436994 *man/data_step.Rd
+c8eb53c896e77094d095374aad6dfddc *man/delete_if.Rd
+984e2efda7d75af4f4639e28f584006d *man/else_do.Rd
+e28fe7474176673619a316f47976a3e4 *man/else_if_do.Rd
+4f7769e9f8be7188d222434c97188166 *man/if_do.Rd
+3b1e7c34861841fc9e69734e7378de34 *man/if_independent.Rd
