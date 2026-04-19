@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Clinical ADaM Derivations with sasif</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Clinical ADaM Derivations with sasif</h1>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Clinical programmers working in R often face a common challenge when
+migrating from SAS: in SAS, a single <code>IF ... THEN DO</code> block
+can assign <strong>multiple variables</strong> at once under one
+condition. In R, traditional approaches like <code>case_when()</code> or
+<code>fifelse()</code> force you to <strong>repeat the same condition
+for every variable</strong> — increasing QC risk and reducing
+readability.</p>
+<p><code>sasif</code> solves this by bringing SAS-style
+<code>IF / ELSE IF / ELSE</code> control flow into R’s
+<code>data.table</code> ecosystem. One condition governs all assignments
+in a block — just like SAS.</p>
+<p>This vignette walks through three real-world ADaM derivation
+scenarios:</p>
+<ol style="list-style-type: decimal">
+<li><strong>ADSL</strong> — Population flags and treatment
+variables</li>
+<li><strong>ADLB</strong> — Laboratory value categorisation</li>
+<li><strong>ADAE</strong> — Treatment-emergent adverse event flags</li>
+</ol>
+<hr />
+</div>
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(sasif)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;data.table&#39; was built under R version 4.5.2</span></span></code></pre></div>
+<hr />
+</div>
+<div id="scenario-1-adsl-population-flags" class="section level2">
+<h2>Scenario 1 — ADSL: Population Flags</h2>
+<div id="the-problem" class="section level3">
+<h3>The Problem</h3>
+<p>In a typical ADSL derivation, when a subject is in the treatment arm,
+multiple variables need to be assigned simultaneously — population
+flags, treatment labels, numeric codes, and treatment dates.</p>
+<p>In traditional R, every variable requires its own repeated
+condition:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># ❌ Traditional R — condition repeated for every variable</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>adsl <span class="ot">&lt;-</span> adsl <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">SAFFL   =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">SAFFLN  =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="dv">1</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">TRT01A  =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> ACTARMCD),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">TRT01AN =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="dv">1</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">ITTFL   =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">FASFL   =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">RANDFL  =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">PPFL    =</span> <span class="fu">case_when</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Same condition written 8 times — high QC risk</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>)</span></code></pre></div>
+<p>If the condition ever changes, you must update it in 8 places. Miss
+one and your derivation silently diverges — a real risk in regulated
+environments.</p>
+</div>
+<div id="the-sasif-solution" class="section level3">
+<h3>The sasif Solution</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create sample ADSL data</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>adsl <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>, <span class="st">&quot;S04&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">ACTARMCD =</span> <span class="fu">c</span>(<span class="st">&quot;TRTA&quot;</span>, <span class="st">&quot;TRTA&quot;</span>, <span class="st">&quot;SCRNFAIL&quot;</span>, <span class="st">&quot;TRTA&quot;</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">RFSTDTC  =</span> <span class="fu">c</span>(<span class="st">&quot;2024-01-10&quot;</span>, <span class="st">&quot;2024-01-15&quot;</span>, <span class="cn">NA</span>, <span class="st">&quot;2024-01-20&quot;</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">RFENDTC  =</span> <span class="fu">c</span>(<span class="st">&quot;2024-06-10&quot;</span>, <span class="st">&quot;2024-06-15&quot;</span>, <span class="cn">NA</span>, <span class="st">&quot;2024-06-20&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># ✅ sasif — condition written ONCE, governs all assignments</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>ADSL <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adsl,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="fu">if_do</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="at">SAFFL   =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="at">SAFFLN  =</span> <span class="dv">1</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">TRT01A  =</span> <span class="st">&quot;Treatment A&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">TRT01AN =</span> <span class="dv">1</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">TRTSDT  =</span> <span class="fu">as.Date</span>(RFSTDTC, <span class="st">&quot;%Y-%m-%d&quot;</span>),</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    <span class="at">TRTEDT  =</span> <span class="fu">as.Date</span>(RFENDTC, <span class="st">&quot;%Y-%m-%d&quot;</span>),</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>    <span class="at">ITTFL   =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    <span class="at">FASFL   =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    <span class="at">RANDFL  =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>    <span class="at">PPFL    =</span> <span class="st">&quot;Y&quot;</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>  )</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>)</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="fu">print</span>(ADSL[, .(USUBJID, ACTARMCD, SAFFL, TRT01A, TRT01AN, ITTFL, FASFL)])</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt;    USUBJID ACTARMCD  SAFFL      TRT01A TRT01AN  ITTFL  FASFL</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;   &lt;char&gt; &lt;char&gt;      &lt;char&gt;   &lt;num&gt; &lt;char&gt; &lt;char&gt;</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; 1:     S01     TRTA      Y Treatment A       1      Y      Y</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; 2:     S02     TRTA      Y Treatment A       1      Y      Y</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; 3:     S03 SCRNFAIL   &lt;NA&gt;        &lt;NA&gt;      NA   &lt;NA&gt;   &lt;NA&gt;</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; 4:     S04     TRTA      Y Treatment A       1      Y      Y</span></span></code></pre></div>
+<p>All 10 variables are derived from a single condition block. Clean,
+readable, and audit-friendly — exactly like SAS
+<code>IF ... THEN DO</code>.</p>
+<hr />
+</div>
+</div>
+<div id="scenario-2-adsl-multi-arm-treatment-assignment-if-else-if-else" class="section level2">
+<h2>Scenario 2 — ADSL: Multi-Arm Treatment Assignment (IF / ELSE IF /
+ELSE)</h2>
+<p>When a study has multiple treatment arms, use the full IF / ELSE IF /
+ELSE chain. The first matching condition wins — all others are
+skipped:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>adsl2 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>, <span class="st">&quot;S04&quot;</span>, <span class="st">&quot;S05&quot;</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">ACTARMCD =</span> <span class="fu">c</span>(<span class="st">&quot;TRTA&quot;</span>, <span class="st">&quot;TRTB&quot;</span>, <span class="st">&quot;TRTC&quot;</span>, <span class="st">&quot;TRTA&quot;</span>, <span class="st">&quot;TRTB&quot;</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">AGE      =</span> <span class="fu">c</span>(<span class="dv">35</span>, <span class="dv">52</span>, <span class="dv">67</span>, <span class="dv">44</span>, <span class="dv">58</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>ADSL2 <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adsl2,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="fu">if_do</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTA&quot;</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>    <span class="at">TRT01A  =</span> <span class="st">&quot;Treatment A&quot;</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    <span class="at">TRT01AN =</span> <span class="dv">1</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  ),</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="fu">else_if_do</span>(ACTARMCD <span class="sc">==</span> <span class="st">&quot;TRTB&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>    <span class="at">TRT01A  =</span> <span class="st">&quot;Treatment B&quot;</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>    <span class="at">TRT01AN =</span> <span class="dv">2</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  ),</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="fu">else_do</span>(</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    <span class="at">TRT01A  =</span> <span class="st">&quot;Placebo&quot;</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>    <span class="at">TRT01AN =</span> <span class="dv">99</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  )</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>)</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="fu">print</span>(ADSL2[, .(USUBJID, ACTARMCD, TRT01A, TRT01AN)])</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;    USUBJID ACTARMCD      TRT01A TRT01AN</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;   &lt;char&gt;      &lt;char&gt;   &lt;num&gt;</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; 1:     S01     TRTA Treatment A       1</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; 2:     S02     TRTB Treatment B       2</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; 3:     S03     TRTC     Placebo      99</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt; 4:     S04     TRTA Treatment A       1</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt; 5:     S05     TRTB Treatment B       2</span></span></code></pre></div>
+<p>Notice that both <code>TRT01A</code> (character label) and
+<code>TRT01AN</code> (numeric code) are derived together under each
+condition — no repetition needed.</p>
+<hr />
+</div>
+<div id="scenario-3-adsl-age-categorisation" class="section level2">
+<h2>Scenario 3 — ADSL: Age Categorisation</h2>
+<p>Derive both the age category label and its numeric code in one
+chain:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>adsl3 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>, <span class="st">&quot;S04&quot;</span>, <span class="st">&quot;S05&quot;</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">AGE     =</span> <span class="fu">c</span>(<span class="dv">32</span>, <span class="dv">45</span>, <span class="dv">58</span>, <span class="dv">71</span>, <span class="dv">80</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>ADSL3 <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adsl3,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">if_do</span>(AGE <span class="sc">&lt;=</span> <span class="dv">45</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="at">AGECAT  =</span> <span class="st">&quot;YOUNG&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>    <span class="at">AGECATN =</span> <span class="dv">1</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  ),</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="fu">else_if_do</span>(AGE <span class="sc">&lt;=</span> <span class="dv">70</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="at">AGECAT  =</span> <span class="st">&quot;MIDDLE&quot;</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>    <span class="at">AGECATN =</span> <span class="dv">2</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  ),</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="fu">else_do</span>(</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    <span class="at">AGECAT  =</span> <span class="st">&quot;OLD&quot;</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>    <span class="at">AGECATN =</span> <span class="dv">3</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  )</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>)</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="fu">print</span>(ADSL3[, .(USUBJID, AGE, AGECAT, AGECATN)])</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;    USUBJID   AGE AGECAT AGECATN</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt; &lt;num&gt; &lt;char&gt;   &lt;num&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 1:     S01    32  YOUNG       1</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 2:     S02    45  YOUNG       1</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 3:     S03    58 MIDDLE       2</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 4:     S04    71    OLD       3</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 5:     S05    80    OLD       3</span></span></code></pre></div>
+<hr />
+</div>
+<div id="scenario-4-adlb-laboratory-value-categorisation" class="section level2">
+<h2>Scenario 4 — ADLB: Laboratory Value Categorisation</h2>
+<p>A common ADaM derivation — categorise lab values as LOW, NORMAL, or
+HIGH based on reference ranges, and derive both the character and
+numeric category together:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>adlb <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">LBTESTCD =</span> <span class="fu">c</span>(<span class="st">&quot;ALB&quot;</span>, <span class="st">&quot;ALB&quot;</span>, <span class="st">&quot;ALB&quot;</span>, <span class="st">&quot;ALB&quot;</span>, <span class="st">&quot;ALB&quot;</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">AVAL     =</span> <span class="fu">c</span>(<span class="fl">2.8</span>, <span class="fl">4.2</span>, <span class="fl">5.6</span>, <span class="fl">3.5</span>, <span class="fl">1.9</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">ANRLO    =</span> <span class="fu">c</span>(<span class="fl">3.5</span>, <span class="fl">3.5</span>, <span class="fl">3.5</span>, <span class="fl">3.5</span>, <span class="fl">3.5</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="at">ANRHI    =</span> <span class="fu">c</span>(<span class="fl">5.0</span>, <span class="fl">5.0</span>, <span class="fl">5.0</span>, <span class="fl">5.0</span>, <span class="fl">5.0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>)</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>ADLB <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adlb,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">if_do</span>(LBTESTCD <span class="sc">==</span> <span class="st">&quot;ALB&quot;</span> <span class="sc">&amp;</span> AVAL <span class="sc">&lt;</span> ANRLO,</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="at">ALBCAT  =</span> <span class="st">&quot;LOW&quot;</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="at">ALBCATN =</span> <span class="dv">1</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  ),</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  <span class="fu">else_if_do</span>(LBTESTCD <span class="sc">==</span> <span class="st">&quot;ALB&quot;</span> <span class="sc">&amp;</span> AVAL <span class="sc">&gt;</span> ANRHI,</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    <span class="at">ALBCAT  =</span> <span class="st">&quot;HIGH&quot;</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>    <span class="at">ALBCATN =</span> <span class="dv">2</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  ),</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  <span class="fu">else_do</span>(</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>    <span class="at">ALBCAT  =</span> <span class="st">&quot;NORMAL&quot;</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    <span class="at">ALBCATN =</span> <span class="dv">3</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  )</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>)</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="fu">print</span>(ADLB[, .(USUBJID, LBTESTCD, AVAL, ANRLO, ANRHI, ALBCAT, ALBCATN)])</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;    USUBJID LBTESTCD  AVAL ANRLO ANRHI ALBCAT ALBCATN</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;char&gt;   &lt;num&gt;</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 1:     S01      ALB   2.8   3.5     5    LOW       1</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 2:     S01      ALB   4.2   3.5     5 NORMAL       3</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 3:     S02      ALB   5.6   3.5     5   HIGH       2</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 4:     S02      ALB   3.5   3.5     5 NORMAL       3</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 5:     S03      ALB   1.9   3.5     5    LOW       1</span></span></code></pre></div>
+<p>Both <code>ALBCAT</code> and <code>ALBCATN</code> are always
+consistent — they are derived from the same condition, so they can never
+diverge.</p>
+<hr />
+</div>
+<div id="scenario-5-adae-treatment-emergent-flag-trtemfl" class="section level2">
+<h2>Scenario 5 — ADAE: Treatment-Emergent Flag (TRTEMFL)</h2>
+<p>Flag adverse events that started on or after the treatment start
+date:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>adae <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">AEDECOD =</span> <span class="fu">c</span>(<span class="st">&quot;Headache&quot;</span>, <span class="st">&quot;Nausea&quot;</span>, <span class="st">&quot;Fatigue&quot;</span>, <span class="st">&quot;Dizziness&quot;</span>, <span class="st">&quot;Rash&quot;</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">ASTDT   =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">&quot;2024-01-15&quot;</span>, <span class="st">&quot;2023-12-01&quot;</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                       <span class="st">&quot;2024-01-20&quot;</span>, <span class="st">&quot;2024-02-10&quot;</span>, <span class="st">&quot;2024-01-25&quot;</span>)),</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">TRTSDT  =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">&quot;2024-01-10&quot;</span>, <span class="st">&quot;2024-01-10&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                       <span class="st">&quot;2024-01-15&quot;</span>, <span class="st">&quot;2024-01-15&quot;</span>, <span class="st">&quot;2024-01-20&quot;</span>)),</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">TRTEDT  =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">&quot;2024-06-10&quot;</span>, <span class="st">&quot;2024-06-10&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>                       <span class="st">&quot;2024-06-15&quot;</span>, <span class="st">&quot;2024-06-15&quot;</span>, <span class="st">&quot;2024-06-20&quot;</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>ADAE <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adae,</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">if_do</span>(ASTDT <span class="sc">&gt;=</span> TRTSDT <span class="sc">&amp;</span> ASTDT <span class="sc">&lt;=</span> TRTEDT,</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    <span class="at">TRTEMFL =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>    <span class="at">TRTEMA  =</span> AEDECOD</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  )</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>)</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="fu">print</span>(ADAE[, .(USUBJID, AEDECOD, ASTDT, TRTSDT, TRTEMFL)])</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;    USUBJID   AEDECOD      ASTDT     TRTSDT TRTEMFL</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;    &lt;char&gt;     &lt;Date&gt;     &lt;Date&gt;  &lt;char&gt;</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; 1:     S01  Headache 2024-01-15 2024-01-10       Y</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; 2:     S01    Nausea 2023-12-01 2024-01-10    &lt;NA&gt;</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; 3:     S02   Fatigue 2024-01-20 2024-01-15       Y</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; 4:     S02 Dizziness 2024-02-10 2024-01-15       Y</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; 5:     S03      Rash 2024-01-25 2024-01-20       Y</span></span></code></pre></div>
+<hr />
+</div>
+<div id="scenario-6-delete-remove-unwanted-records" class="section level2">
+<h2>Scenario 6 — DELETE: Remove Unwanted Records</h2>
+<p>Use <code>delete_if()</code> to remove rows explicitly — mirrors the
+SAS <code>DELETE</code> statement and makes the intent clear in the
+code:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>adlb2 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">USUBJID  =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>, <span class="st">&quot;S04&quot;</span>, <span class="st">&quot;S05&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">LBTESTCD =</span> <span class="fu">c</span>(<span class="st">&quot;ALB&quot;</span>, <span class="cn">NA</span>,    <span class="st">&quot;ALB&quot;</span>, <span class="st">&quot;ALB&quot;</span>, <span class="cn">NA</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">VISIT    =</span> <span class="fu">c</span>(<span class="st">&quot;WEEK 1&quot;</span>, <span class="st">&quot;WEEK 1&quot;</span>, <span class="st">&quot;UNSCHEDULED&quot;</span>, <span class="st">&quot;WEEK 2&quot;</span>, <span class="st">&quot;WEEK 4&quot;</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">AVAL     =</span> <span class="fu">c</span>(<span class="fl">4.2</span>, <span class="fl">3.8</span>, <span class="fl">5.1</span>, <span class="fl">4.0</span>, <span class="fl">3.5</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>ADLB2 <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adlb2,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">delete_if</span>(<span class="fu">is.na</span>(LBTESTCD)),</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">delete_if</span>(VISIT <span class="sc">==</span> <span class="st">&quot;UNSCHEDULED&quot;</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="fu">print</span>(ADLB2)</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;    USUBJID LBTESTCD  VISIT  AVAL</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt;   &lt;char&gt; &lt;char&gt; &lt;num&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 1:     S01      ALB WEEK 1   4.2</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 2:     S04      ALB WEEK 2   4.0</span></span></code></pre></div>
+<p>Only records with valid test codes and scheduled visits are
+retained.</p>
+<hr />
+</div>
+<div id="scenario-7-independent-flags-if_independent" class="section level2">
+<h2>Scenario 7 — Independent Flags (if_independent)</h2>
+<p>Use <code>if_independent()</code> when conditions are
+<strong>not</strong> mutually exclusive — each condition is evaluated on
+its own, so multiple flags can apply to the same row simultaneously:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>adsl4 <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">USUBJID =</span> <span class="fu">c</span>(<span class="st">&quot;S01&quot;</span>, <span class="st">&quot;S02&quot;</span>, <span class="st">&quot;S03&quot;</span>, <span class="st">&quot;S04&quot;</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">AGE     =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">68</span>, <span class="dv">45</span>, <span class="dv">72</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">WEIGHTKG =</span> <span class="fu">c</span>(<span class="dv">48</span>, <span class="dv">72</span>, <span class="dv">55</span>, <span class="dv">43</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">DIABFL  =</span> <span class="fu">c</span>(<span class="st">&quot;N&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;N&quot;</span>, <span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>ADSL4 <span class="ot">&lt;-</span> <span class="fu">data_step</span>(adsl4,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">if_independent</span>(AGE <span class="sc">&gt;</span> <span class="dv">65</span>,       <span class="at">SENIORFL  =</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="fu">if_independent</span>(WEIGHTKG <span class="sc">&lt;</span> <span class="dv">50</span>,  <span class="at">LOWWTFL   =</span> <span class="st">&quot;Y&quot;</span>),</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="fu">if_independent</span>(DIABFL <span class="sc">==</span> <span class="st">&quot;Y&quot;</span>,  <span class="at">COMORBFL  =</span> <span class="st">&quot;Y&quot;</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="fu">print</span>(ADSL4)</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;    USUBJID   AGE WEIGHTKG DIABFL SENIORFL LOWWTFL COMORBFL</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt; &lt;num&gt;    &lt;num&gt; &lt;char&gt;   &lt;char&gt;  &lt;char&gt;   &lt;char&gt;</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; 1:     S01    30       48      N     &lt;NA&gt;       Y     &lt;NA&gt;</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; 2:     S02    68       72      Y        Y    &lt;NA&gt;        Y</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 3:     S03    45       55      N     &lt;NA&gt;    &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 4:     S04    72       43      Y        Y       Y        Y</span></span></code></pre></div>
+<p>Subject S04 (age 72, weight 43, diabetic) receives all three flags —
+because all three conditions are TRUE for that row simultaneously.</p>
+<hr />
+</div>
+<div id="key-principle-when-to-use-which-function" class="section level2">
+<h2>Key Principle: When to Use Which Function</h2>
+<table>
+<colgroup>
+<col width="68%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>First matching condition should win</td>
+<td><code>if_do()</code> + <code>else_if_do()</code> +
+<code>else_do()</code></td>
+</tr>
+<tr class="even">
+<td>Multiple conditions can apply to same row</td>
+<td><code>if_independent()</code></td>
+</tr>
+<tr class="odd">
+<td>Remove rows from dataset</td>
+<td><code>delete_if()</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important:</strong> Do not mix <code>if_do()</code> chains
+with <code>if_independent()</code> on the same variable.
+<code>if_independent()</code> runs <strong>after</strong> the chain and
+will overwrite earlier assignments. Use one approach consistently per
+variable.</p>
+</blockquote>
+<hr />
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p><code>sasif</code> brings three key benefits to clinical R
+programming:</p>
+<ul>
+<li><strong>One condition, multiple assignments</strong> — no repeated
+logic, no QC risk of conditions diverging</li>
+<li><strong>Familiar SAS syntax</strong> —
+<code>IF / ELSE IF / ELSE</code> control flow that clinical programmers
+already know</li>
+<li><strong>data.table performance</strong> — fully vectorized, no row
+loops, scales to millions of rows</li>
+</ul>
+<p>For more information, see the <a href="https://chandrt23-lang.github.io/sasif/">package
+documentation</a>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

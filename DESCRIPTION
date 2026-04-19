@@ -1,7 +1,7 @@
 Package: sasif
 Type: Package
 Title: 'SAS' IF Style Data Step Logic for Data Tables
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Thiyagarajan", "Chandrasekaran", 
            email = "chandrt23@gmail.com",
@@ -16,11 +16,17 @@ Description: Provides 'SAS'-style IF/ELSE chains, independent IF rules,
     <https://www.cdisc.org/standards/foundational/adam>.
 License: MIT + file LICENSE
 Encoding: UTF-8
+URL: https://chandrt23-lang.github.io/sasif/,
+        https://github.com/chandrt23-lang/sasif
+BugReports: https://github.com/chandrt23-lang/sasif/issues
 Imports: data.table
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: knitr
 RoxygenNote: 7.3.3
+Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2026-01-30 03:24:58 UTC; Thiyagarajan
+Packaged: 2026-04-19 08:51:41 UTC; Thiyagarajan
 Author: Thiyagarajan Chandrasekaran [aut, cre]
 Maintainer: Thiyagarajan Chandrasekaran <chandrt23@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-02-03 12:40:02 UTC
+Date/Publication: 2026-04-19 09:00:02 UTC
